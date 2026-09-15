@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <TextView android:id="@+id/formTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add pantry item" android:textSize="26sp" android:textStyle="bold" />
+    <EditText android:id="@+id/nameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ingredient name" android:inputType="textCapWords" />
+    <EditText android:id="@+id/quantityInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Quantity" android:inputType="numberDecimal" />
+    <Spinner android:id="@+id/unitInput" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <EditText android:id="@+id/expiryInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Expiry date (YYYY-MM-DD, optional)" android:inputType="date" />
+    <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Save" />
+</LinearLayout></ScrollView>

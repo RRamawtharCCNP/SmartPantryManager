@@ -1,0 +1,1 @@
+<resources><style name="Theme.SmartPantry" parent="Theme.AppCompat.Light.DarkActionBar"><item name="colorPrimary">@color/green</item><item name="colorPrimaryDark">@color/green</item><item name="android:fontFamily">sans</item><item name="android:windowBackground">@color/cream</item></style></resources>
