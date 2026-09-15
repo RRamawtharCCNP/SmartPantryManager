@@ -1,4 +1,50 @@
 package za.ac.richfield.smartpantry;
 
-import android.content.Intent;import android.os.Bundle;import android.view.View;import androidx.appcompat.app.AppCompatActivity;import androidx.recyclerview.widget.*;import java.util.*;
-public class SuggestedRecipesActivity extends AppCompatActivity{protected void onCreate(Bundle b){super.onCreate(b);setContentView(R.layout.activity_suggested_recipes);List<Recipe>x=new DatabaseHelper(this).suggested();View empty=findViewById(R.id.noMatchesText);empty.setVisibility(x.isEmpty()?View.VISIBLE:View.GONE);RecyclerView list=findViewById(R.id.recipeList);list.setLayoutManager(new LinearLayoutManager(this));list.setAdapter(new RecipeAdapter(x,r->{Intent i=new Intent(this,RecipeDetailActivity.class);i.putExtra("id",r.id);startActivity(i);}));}}
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.List;
+
+public class SuggestedRecipesActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_suggested_recipes);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Suggested Recipes");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        List<Recipe> matches = new DatabaseHelper(this).suggested();
+
+        TextView headerText = findViewById(R.id.suggestedHeader);
+        if (headerText != null) {
+            headerText.setText("Available Recipes (" + matches.size() + ")");
+        }
+
+        View noMatchesCard = findViewById(R.id.noMatchesCard);
+        if (noMatchesCard != null) {
+            noMatchesCard.setVisibility(matches.isEmpty() ? View.VISIBLE : View.GONE);
+        }
+
+        RecyclerView list = findViewById(R.id.recipeList);
+        list.setLayoutManager(new LinearLayoutManager(this));
+        list.setAdapter(new RecipeAdapter(matches, recipe -> {
+            Intent intent = new Intent(this, RecipeDetailActivity.class);
+            intent.putExtra("id", recipe.id);
+            startActivity(intent);
+        }));
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+}

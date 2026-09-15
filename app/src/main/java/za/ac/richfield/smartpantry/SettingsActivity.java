@@ -1,4 +1,35 @@
 package za.ac.richfield.smartpantry;
 
-import android.os.Bundle;import android.widget.Switch;import androidx.appcompat.app.AppCompatActivity;
-public class SettingsActivity extends AppCompatActivity{protected void onCreate(Bundle b){super.onCreate(b);setContentView(R.layout.activity_settings);Switch s=findViewById(R.id.expirySwitch);android.content.SharedPreferences p=getSharedPreferences("settings",MODE_PRIVATE);s.setChecked(p.getBoolean("expiry_alerts",true));s.setOnCheckedChangeListener((v,on)->p.edit().putBoolean("expiry_alerts",on).apply());}}
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+
+public class SettingsActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Settings");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        SwitchMaterial expirySwitch = findViewById(R.id.expirySwitch);
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+
+        if (expirySwitch != null) {
+            expirySwitch.setChecked(prefs.getBoolean("expiry_alerts", true));
+            expirySwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    prefs.edit().putBoolean("expiry_alerts", isChecked).apply());
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+}
