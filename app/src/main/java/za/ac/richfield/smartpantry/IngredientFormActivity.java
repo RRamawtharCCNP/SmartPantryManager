@@ -2,17 +2,20 @@ package za.ac.richfield.smartpantry;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import androidx.appcompat.widget.Toolbar;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class IngredientFormActivity extends AppCompatActivity {
 
     private EditText name, quantity, expiry;
-    private Spinner unit;
+    private AutoCompleteTextView unit;
     private DatabaseHelper db;
     private long id = -1;
 
@@ -21,6 +24,8 @@ public class IngredientFormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ingredient_form);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -32,13 +37,12 @@ public class IngredientFormActivity extends AppCompatActivity {
         unit = findViewById(R.id.unitInput);
 
         String[] units = {"unit", "g", "kg", "ml", "l"};
-        unit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
+        unit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, units));
+        unit.setText(units[0], false);
 
         id = getIntent().getLongExtra("id", -1);
         if (id != -1) {
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Edit Ingredient");
-            }
+            getSupportActionBar().setTitle("Edit Ingredient");
             TextView title = findViewById(R.id.formTitle);
             if (title != null) title.setText("Edit Pantry Ingredient");
 
@@ -47,15 +51,7 @@ public class IngredientFormActivity extends AppCompatActivity {
                 name.setText(item.name);
                 quantity.setText(String.valueOf(item.quantity));
                 expiry.setText(item.expiry);
-                for (int i = 0; i < units.length; i++) {
-                    if (units[i].equalsIgnoreCase(item.unit)) {
-                        unit.setSelection(i);
-                    }
-                }
-            }
-        } else {
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Add Ingredient");
+                unit.setText(item.unit, false);
             }
         }
 
@@ -66,6 +62,7 @@ public class IngredientFormActivity extends AppCompatActivity {
         String n = name.getText().toString().trim();
         String q = quantity.getText().toString().trim();
         String e = expiry.getText().toString().trim();
+        String u = unit.getText().toString().trim();
 
         if (n.length() < 2) {
             name.setError("Enter at least 2 letters for the ingredient name");
@@ -85,15 +82,16 @@ public class IngredientFormActivity extends AppCompatActivity {
 
         if (!e.isEmpty()) {
             try {
-                LocalDate.parse(e);
-            } catch (DateTimeParseException ex) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                sdf.setLenient(false);
+                sdf.parse(e);
+            } catch (ParseException ex) {
                 expiry.setError("Use YYYY-MM-DD format (e.g. 2026-10-15)");
                 expiry.requestFocus();
                 return;
             }
         }
 
-        String u = unit.getSelectedItem().toString();
         if (id == -1) {
             db.addPantry(n, amount, u, e);
         } else {

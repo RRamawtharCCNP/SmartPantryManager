@@ -3,6 +3,7 @@ package za.ac.richfield.smartpantry;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class RecipeDetailActivity extends AppCompatActivity {
 
@@ -10,6 +11,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_detail);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Recipe Details");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         long recipeId = getIntent().getLongExtra("id", -1);
         Recipe recipe = new DatabaseHelper(this).recipe(recipeId);
@@ -21,7 +29,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(recipe.name);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         TextView nameView = findViewById(R.id.recipeName);
