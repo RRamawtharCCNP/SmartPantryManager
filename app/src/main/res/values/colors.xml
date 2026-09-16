@@ -1,35 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Material 3 Green Theme -->
-    <color name="md_theme_primary">#2E7D32</color>
-    <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#C8E6C9</color>
-    <color name="md_theme_onPrimaryContainer">#002107</color>
+    <!-- Material 3 Colors (Default/Light) -->
+    <color name="primary">#006D31</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="primaryContainer">#97F7AA</color>
+    <color name="onPrimaryContainer">#00210A</color>
 
-    <color name="md_theme_secondary">#55634E</color>
-    <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondaryContainer">#D8E8CD</color>
-    <color name="md_theme_onSecondaryContainer">#131F0F</color>
+    <color name="secondary">#4F6352</color>
+    <color name="onSecondary">#FFFFFF</color>
+    <color name="secondaryContainer">#D1E8D3</color>
+    <color name="onSecondaryContainer">#0C1F12</color>
 
-    <color name="md_theme_error">#BA1A1A</color>
-    <color name="md_theme_onError">#FFFFFF</color>
-    <color name="md_theme_errorContainer">#FFDAD6</color>
-    <color name="md_theme_onErrorContainer">#410002</color>
+    <color name="surface">#FBFDF7</color>
+    <color name="onSurface">#191C1A</color>
+    <color name="surfaceVariant">#DDE5DB</color>
+    <color name="onSurfaceVariant">#414941</color>
+    <color name="outline">#717971</color>
+    <color name="error">#BA1A1A</color>
+    <color name="onError">#FFFFFF</color>
 
-    <color name="md_theme_background">#FCFDF6</color>
-    <color name="md_theme_onBackground">#1A1C19</color>
-    <color name="md_theme_surface">#FCFDF6</color>
-    <color name="md_theme_onSurface">#1A1C19</color>
-    <color name="md_theme_surfaceVariant">#DFE4D7</color>
-    <color name="md_theme_onSurfaceVariant">#43483E</color>
-    <color name="md_theme_outline">#73796D</color>
-
-    <!-- Legacy support / Specific cases -->
-    <color name="green_primary">#2E7D32</color>
-    <color name="green_dark">#1B5E20</color>
-    <color name="green_light">#E8F5E9</color>
-    <color name="amber_accent">#F57C00</color>
+    <!-- Legacy / Drawables support -->
+    <color name="green_primary">#006D31</color>
+    <color name="green_light">#97F7AA</color>
     <color name="white">#FFFFFF</color>
-    <color name="red_warning">#D32F2F</color>
-    <color name="divider_color">#E0E0E0</color>
 </resources>
