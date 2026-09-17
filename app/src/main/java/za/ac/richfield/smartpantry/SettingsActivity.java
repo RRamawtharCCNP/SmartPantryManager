@@ -2,6 +2,7 @@ package za.ac.richfield.smartpantry;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -26,6 +27,12 @@ public class SettingsActivity extends AppCompatActivity {
             expirySwitch.setChecked(prefs.getBoolean("expiry_alerts", true));
             expirySwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
                     prefs.edit().putBoolean("expiry_alerts", isChecked).apply());
+        }
+
+        View auditLogCard = findViewById(R.id.auditLogCard);
+        if (auditLogCard != null) {
+            auditLogCard.setOnClickListener(v ->
+                    startActivity(new android.content.Intent(this, ActivityReportActivity.class)));
         }
     }
 

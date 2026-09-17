@@ -1,26 +1,98 @@
 package za.ac.richfield.smartpantry;
 
 import android.content.*; import android.database.Cursor; import android.database.sqlite.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DB="smart_pantry.db"; private static final int VERSION=1;
+    private static final String DB="smart_pantry.db"; private static final int VERSION=2;
     public DatabaseHelper(Context c){super(c,DB,null,VERSION);}
     @Override public void onCreate(SQLiteDatabase db){
         db.execSQL("CREATE TABLE pantry(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,quantity REAL NOT NULL CHECK(quantity>0),unit TEXT NOT NULL,expiry TEXT)");
         db.execSQL("CREATE TABLE recipes(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE,method TEXT NOT NULL)");
         db.execSQL("CREATE TABLE requirements(id INTEGER PRIMARY KEY AUTOINCREMENT,recipe_id INTEGER NOT NULL,name TEXT NOT NULL,quantity REAL NOT NULL,unit TEXT NOT NULL,FOREIGN KEY(recipe_id) REFERENCES recipes(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS activity_log(id INTEGER PRIMARY KEY AUTOINCREMENT,action_type TEXT NOT NULL,item_name TEXT NOT NULL,details TEXT NOT NULL,timestamp TEXT NOT NULL)");
         seed(db);
     }
-    @Override public void onUpgrade(SQLiteDatabase db,int oldV,int newV){}
+    @Override public void onUpgrade(SQLiteDatabase db,int oldV,int newV){
+        if (oldV < 2) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS activity_log(id INTEGER PRIMARY KEY AUTOINCREMENT,action_type TEXT NOT NULL,item_name TEXT NOT NULL,details TEXT NOT NULL,timestamp TEXT NOT NULL)");
+        }
+    }
     @Override public void onConfigure(SQLiteDatabase db){super.onConfigure(db);db.setForeignKeyConstraintsEnabled(true);}
-    public long addPantry(String n,double q,String u,String e){ContentValues v=values(n,q,u,e);return getWritableDatabase().insertOrThrow("pantry",null,v);}
-    public void updatePantry(long id,String n,double q,String u,String e){getWritableDatabase().update("pantry",values(n,q,u,e),"id=?",new String[]{String.valueOf(id)});}
-    public void deletePantry(long id){getWritableDatabase().delete("pantry","id=?",new String[]{String.valueOf(id)});}
+    
+    public void logAction(String actionType, String itemName, String details) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String ts = sdf.format(new Date());
+        ContentValues v = new ContentValues();
+        v.put("action_type", actionType);
+        v.put("item_name", itemName);
+        v.put("details", details);
+        v.put("timestamp", ts);
+        try {
+            getWritableDatabase().insert("activity_log", null, v);
+        } catch (Exception ignored) {}
+    }
+
+    public long addPantry(String n,double q,String u,String e){
+        ContentValues v=values(n,q,u,e);
+        long id = getWritableDatabase().insertOrThrow("pantry",null,v);
+        String expStr = (e != null && !e.trim().isEmpty()) ? ", Exp: " + e.trim() : "";
+        logAction("ADDED", n.trim(), "Added " + q + " " + u + expStr);
+        return id;
+    }
+    public void updatePantry(long id,String n,double q,String u,String e){
+        PantryItem old = pantry(id);
+        getWritableDatabase().update("pantry",values(n,q,u,e),"id=?",new String[]{String.valueOf(id)});
+        String expStr = (e != null && !e.trim().isEmpty()) ? ", Exp: " + e.trim() : "";
+        String details = "Updated to " + q + " " + u + expStr;
+        if (old != null) {
+            details = "Changed from " + old.quantity + " " + old.unit + " to " + q + " " + u + expStr;
+        }
+        logAction("UPDATED", n.trim(), details);
+    }
+    public void deletePantry(long id){
+        PantryItem item = pantry(id);
+        getWritableDatabase().delete("pantry","id=?",new String[]{String.valueOf(id)});
+        if (item != null) {
+            logAction("DELETED", item.name, "Removed " + item.quantity + " " + item.unit + " from pantry");
+        }
+    }
     private ContentValues values(String n,double q,String u,String e){ContentValues v=new ContentValues();v.put("name",n.trim());v.put("quantity",q);v.put("unit",u);v.put("expiry",e.trim());return v;}
     public PantryItem pantry(long id){try(Cursor c=getReadableDatabase().query("pantry",null,"id=?",new String[]{String.valueOf(id)},null,null,null)){if(c.moveToFirst())return pantryFrom(c);}return null;}
     public List<PantryItem> pantry(){List<PantryItem>x=new ArrayList<>();try(Cursor c=getReadableDatabase().query("pantry",null,null,null,null,null,"name COLLATE NOCASE")){while(c.moveToNext())x.add(pantryFrom(c));}return x;}
     private PantryItem pantryFrom(Cursor c){return new PantryItem(c.getLong(c.getColumnIndexOrThrow("id")),c.getString(c.getColumnIndexOrThrow("name")),c.getDouble(c.getColumnIndexOrThrow("quantity")),c.getString(c.getColumnIndexOrThrow("unit")),c.getString(c.getColumnIndexOrThrow("expiry")));}
+    
+    public List<AuditLogItem> auditLogs() {
+        List<AuditLogItem> list = new ArrayList<>();
+        try (Cursor c = getReadableDatabase().query("activity_log", null, null, null, null, null, "id DESC")) {
+            while (c.moveToNext()) {
+                list.add(new AuditLogItem(
+                    c.getLong(c.getColumnIndexOrThrow("id")),
+                    c.getString(c.getColumnIndexOrThrow("action_type")),
+                    c.getString(c.getColumnIndexOrThrow("item_name")),
+                    c.getString(c.getColumnIndexOrThrow("details")),
+                    c.getString(c.getColumnIndexOrThrow("timestamp"))
+                ));
+            }
+        } catch (Exception ignored) {}
+        return list;
+    }
+
+    public void clearAuditLogs() {
+        try {
+            getWritableDatabase().delete("activity_log", null, null);
+        } catch (Exception ignored) {}
+    }
+
+    public int countLogsByAction(String type) {
+        int count = 0;
+        try (Cursor c = getReadableDatabase().rawQuery("SELECT COUNT(*) FROM activity_log WHERE action_type=?", new String[]{type})) {
+            if (c.moveToFirst()) count = c.getInt(0);
+        } catch (Exception ignored) {}
+        return count;
+    }
+
     public List<Recipe> suggested(){List<PantryItem> pantry=pantry();List<Recipe> out=new ArrayList<>();for(Recipe r:recipes())if(matches(r,pantry))out.add(r);return out;}
     public boolean matches(Recipe recipe,List<PantryItem> pantry){
         for(Recipe.Requirement req:recipe.requirements){double available=0;String target=IngredientNormalizer.name(req.name);String family=IngredientNormalizer.family(req.unit);for(PantryItem p:pantry)if(IngredientNormalizer.name(p.name).equals(target)&&IngredientNormalizer.family(p.unit).equals(family))available+=IngredientNormalizer.baseQuantity(p.quantity,p.unit);if(available+0.0001<IngredientNormalizer.baseQuantity(req.quantity,req.unit))return false;}return true;
@@ -49,3 +121,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     private void addRecipe(SQLiteDatabase db,String name,String method,String spec){ContentValues v=new ContentValues();v.put("name",name);v.put("method",method);long id=db.insertOrThrow("recipes",null,v);for(String part:spec.split(";")){String[]a=part.split("\\|");ContentValues q=new ContentValues();q.put("recipe_id",id);q.put("name",a[0]);q.put("quantity",Double.parseDouble(a[1]));q.put("unit",a[2]);db.insertOrThrow("requirements",null,q);}}
 }
+
