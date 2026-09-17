@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 Colors (Dark Override) -->
+    <color name="primary">#7BD990</color>
+    <color name="onPrimary">#003916</color>
+    <color name="primaryContainer">#005223</color>
+    <color name="onPrimaryContainer">#97F7AA</color>
+
+    <color name="secondary">#B6CCB7</color>
+    <color name="onSecondary">#213526</color>
+    <color name="secondaryContainer">#374B3B</color>
+    <color name="onSecondaryContainer">#D1E8D3</color>
+
+    <color name="surface">#191C1A</color>
+    <color name="onSurface">#E1E3DE</color>
+    <color name="surfaceVariant">#414941</color>
+    <color name="onSurfaceVariant">#C1C9C0</color>
+    <color name="outline">#8B938A</color>
+    <color name="error">#FFB4AB</color>
+    <color name="onError">#690005</color>
+</resources>
