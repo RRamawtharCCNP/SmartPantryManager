@@ -1,36 +1,44 @@
 # Smart Pantry Manager
 
-Smart Pantry Manager is a Java Android application that tracks leftover ingredients and suggests only recipes for which every required ingredient and quantity is already available.
+Smart Pantry Manager is an Android application built in Java that tracks leftover pantry ingredients and dynamically suggests recipes for which **every** required ingredient and quantity is currently available in the user's pantry.
 
-## Database choice
+## Features
 
-The app uses local SQLite through `SQLiteOpenHelper`. SQLite suits a private pantry app because it works offline, adds no account or hosting dependency, persists between launches, and supports transactional CRUD. Three related tables store pantry items, recipes, and recipe requirements. Eighteen recipes are seeded on first run.
+- **Pantry Tracking**: Add, edit, and delete pantry items with exact quantities, measurement units, and expiration dates.
+- **Strict Recipe Matching**: Evaluates pantry items against pre-seeded recipes using exact unit normalization and quantity requirements.
+- **Recipe Details**: Displays complete ingredient checklists and step-by-step cooking instructions.
+- **Dark Mode Support**: Styled using modern Material Design card layouts with support for night themes.
+- **Offline Storage**: Powered by local SQLite database storage for zero cloud latency and full privacy.
 
-## Requirements
+## Architecture & Database Design
 
-- Android Studio with JDK 17
-- Android SDK 35 (minimum supported device: Android 7.0 / API 24)
+The application utilizes an offline-first architecture using local SQLite via `SQLiteOpenHelper`.
 
-## Run
+- **Pantry Table (`pantry`)**: Stores active ingredient records with name, quantity, unit, and expiration date.
+- **Recipes Table (`recipes`)**: Stores dish names and detailed preparation methods (18 default recipes seeded on first run).
+- **Requirements Table (`requirements`)**: Foreign-key linked table detailing required ingredients, exact amounts, and measurement units for each recipe.
 
-1. Open the `SmartPantryManager` folder in Android Studio.
-2. Allow Gradle sync to complete.
-3. Select an emulator or Android device running API 24 or later.
-4. Run the `app` configuration.
+### Strict Matching Mechanics
 
-## Demonstrating strict matching
+1. **Name Normalization**: Ingredient names are normalized to ignore case, whitespace, punctuation, and common singular/plural variations.
+2. **Unit Conversion**: Measurement units are converted within compatible families (e.g., `kg` to `g`, `l` to `ml`). Incompatible unit families are safely ignored.
+3. **Quantity Threshold**: Recipes only appear in "Suggested Recipes" when the total available quantity in the pantry meets or exceeds the recipe requirement.
 
-1. Add 2 eggs and 30 ml milk. “Scrambled Eggs” appears.
-2. Edit milk to 20 ml. The recipe disappears because quantity is insufficient.
-3. Restore milk to 30 ml. The recipe returns.
-4. Delete the eggs. It disappears again.
+## Requirements & Building
 
-Name matching normalises case, whitespace, punctuation, and common singular/plural forms. Quantities normalise kg to g and l to ml, while incompatible measurement families never match.
+- **IDE**: Android Studio Ladybug (or newer) with JDK 17
+- **Target SDK**: Android SDK 35
+- **Minimum Supported OS**: Android 7.0 (API Level 24)
 
-## Academic submission checklist
+### Quick Run Guide
 
-- Replace identity placeholders in the report.
-- Add a public GitHub repository URL and push genuine incremental commits.
-- Capture real screenshots from the running app and place them in the report.
-- Record the required narrated 5–7 minute demonstration.
-- Sign the declaration yourself and create the final ZIP below 50 MB.
+1. Open `SmartPantryManager` in Android Studio.
+2. Let Gradle sync dependencies and build configuration.
+3. Launch an emulator or connect a physical Android device running API 24+.
+4. Execute the `app` run configuration.
+
+## Verification & Academic Submission
+
+- **GitHub Repository**: Linked to official incremental commit history.
+- **Video Walkthrough**: Includes a 1-minute GitHub commit walkthrough demonstrating project evolution.
+
