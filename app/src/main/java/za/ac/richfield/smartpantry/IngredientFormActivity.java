@@ -1,5 +1,6 @@
 package za.ac.richfield.smartpantry;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -10,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 public class IngredientFormActivity extends AppCompatActivity {
@@ -55,7 +57,40 @@ public class IngredientFormActivity extends AppCompatActivity {
             }
         }
 
+        expiry.setOnClickListener(v -> showDatePicker());
+        if (findViewById(R.id.expiryInputLayout) != null) {
+            findViewById(R.id.expiryInputLayout).setOnClickListener(v -> showDatePicker());
+        }
+
         findViewById(R.id.saveButton).setOnClickListener(v -> save());
+    }
+
+    private void showDatePicker() {
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        String currentExpiry = expiry.getText().toString().trim();
+        if (!currentExpiry.isEmpty()) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                c.setTime(sdf.parse(currentExpiry));
+                year = c.get(Calendar.YEAR);
+                month = c.get(Calendar.MONTH);
+                day = c.get(Calendar.DAY_OF_MONTH);
+            } catch (ParseException ignored) {}
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, yearSelected, monthOfYear, dayOfMonth) -> {
+                    String selectedDate = String.format(Locale.US, "%04d-%02d-%02d", yearSelected, monthOfYear + 1, dayOfMonth);
+                    expiry.setText(selectedDate);
+                },
+                year, month, day
+        );
+        datePickerDialog.show();
     }
 
     private void save() {
