@@ -6,12 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AuditLogAdapter extends RecyclerView.Adapter<AuditLogAdapter.ViewHolder> {
+
+    // corner radius for the little colored action badge (ADDED/UPDATED/DELETED)
+    private static final float BADGE_CORNER_RADIUS = 16f;
 
     private final List<AuditLogItem> items = new ArrayList<>();
 
@@ -20,6 +25,8 @@ public class AuditLogAdapter extends RecyclerView.Adapter<AuditLogAdapter.ViewHo
         if (newItems != null) {
             items.addAll(newItems);
         }
+        // TODO: switch to DiffUtil at some point, notifyDataSetChanged is fine for now
+        // since lists are small
         notifyDataSetChanged();
     }
 
@@ -34,31 +41,44 @@ public class AuditLogAdapter extends RecyclerView.Adapter<AuditLogAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         AuditLogItem item = items.get(position);
+
         holder.logItemName.setText(item.itemName);
         holder.logDetails.setText(item.details);
         holder.logTimestamp.setText(item.timestamp);
         holder.actionBadge.setText(item.actionType);
 
-        int badgeColor;
-        if ("ADDED".equalsIgnoreCase(item.actionType)) {
-            badgeColor = Color.parseColor("#2E7D32");
-        } else if ("UPDATED".equalsIgnoreCase(item.actionType)) {
-            badgeColor = Color.parseColor("#E65100");
-        } else if ("DELETED".equalsIgnoreCase(item.actionType)) {
-            badgeColor = Color.parseColor("#C62828");
-        } else {
-            badgeColor = Color.parseColor("#616161");
-        }
-
-        GradientDrawable shape = new GradientDrawable();
-        shape.setCornerRadius(16f);
-        shape.setColor(badgeColor);
-        holder.actionBadge.setBackground(shape);
+        holder.actionBadge.setBackground(buildBadgeBackground(item.actionType));
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    // rounded pill background for the badge, colored based on what kind of action
+    // it was
+    private GradientDrawable buildBadgeBackground(String actionType) {
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(BADGE_CORNER_RADIUS);
+        shape.setColor(colorForAction(actionType));
+        return shape;
+    }
+
+    private int colorForAction(String actionType) {
+        if (actionType == null) {
+            return Color.parseColor("#616161"); // fallback grey, shouldn't really happen
+        }
+
+        switch (actionType.toUpperCase()) {
+            case "ADDED":
+                return Color.parseColor("#2E7D32"); // green
+            case "UPDATED":
+                return Color.parseColor("#E65100"); // orange
+            case "DELETED":
+                return Color.parseColor("#C62828"); // red
+            default:
+                return Color.parseColor("#616161"); // grey for anything unexpected
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
