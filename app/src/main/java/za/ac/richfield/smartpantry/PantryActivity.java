@@ -44,41 +44,32 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
         db = new DatabaseHelper(this);
         adapter = new PantryAdapter(this);
 
-        // Bind dashboard stats views
         statTotalCount = findViewById(R.id.statTotalCount);
         statExpiringCount = findViewById(R.id.statExpiringCount);
         statFreshCount = findViewById(R.id.statFreshCount);
 
-        // Bind search bar views
         searchEditText = findViewById(R.id.searchEditText);
         clearSearchButton = findViewById(R.id.clearSearchButton);
-
-        // Bind filter chips
         filterChipGroup = findViewById(R.id.filterChipGroup);
 
-        // Bind empty state views
         emptyCard = findViewById(R.id.emptyCardView);
         emptyTitle = findViewById(R.id.emptyTitle);
         emptySubtitle = findViewById(R.id.emptySubtitle);
 
-        // Setup RecyclerView
         RecyclerView list = findViewById(R.id.pantryList);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
 
-        // FAB Setup
         ExtendedFloatingActionButton fab = findViewById(R.id.addButton);
         fab.setOnClickListener(v ->
                 startActivity(new Intent(this, IngredientFormActivity.class)));
 
-        // Empty State Button
         View emptyAddBtn = findViewById(R.id.emptyAddButton);
         if (emptyAddBtn != null) {
             emptyAddBtn.setOnClickListener(v ->
                     startActivity(new Intent(this, IngredientFormActivity.class)));
         }
 
-        // Bottom Navigation Setup
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
         bottomNav.setSelectedItemId(R.id.nav_pantry);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -93,7 +84,6 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
             return id == R.id.nav_pantry;
         });
 
-        // Hide FAB on scroll
         list.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -102,7 +92,6 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
             }
         });
 
-        // Search text listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -123,7 +112,6 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
             clearSearchButton.setOnClickListener(v -> searchEditText.setText(""));
         }
 
-        // Filter chips listener
         if (filterChipGroup != null) {
             filterChipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilters());
         }
@@ -176,12 +164,10 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
         List<PantryItem> filtered = new ArrayList<>();
 
         for (PantryItem item : allItems) {
-            // Search text check
             if (!query.isEmpty() && !item.name.toLowerCase(Locale.ROOT).contains(query)) {
                 continue;
             }
 
-            // Category filter check
             if (checkedChipId == R.id.chipExpiring) {
                 if (item.expiry == null || item.expiry.trim().isEmpty()) continue;
                 Date expDate = parseDate(item.expiry.trim());
@@ -202,7 +188,6 @@ public class PantryActivity extends AppCompatActivity implements PantryAdapter.L
 
         adapter.setItems(filtered);
 
-        // Update Empty State
         if (emptyCard != null) {
             if (filtered.isEmpty()) {
                 emptyCard.setVisibility(View.VISIBLE);

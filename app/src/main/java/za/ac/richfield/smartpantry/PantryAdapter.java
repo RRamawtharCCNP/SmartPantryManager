@@ -47,17 +47,13 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.Holder> {
     public void onBindViewHolder(@NonNull Holder holder, int position) {
         PantryItem item = items.get(position);
         holder.name.setText(item.name);
-        
-        // Display category icon avatar
         holder.categoryIcon.setText(getCategoryIcon(item.name));
 
-        // Format quantity in badge
         String qtyText = (item.quantity % 1 == 0) 
                 ? String.format(Locale.getDefault(), "%.0f %s", item.quantity, item.unit) 
                 : String.format(Locale.getDefault(), "%.1f %s", item.quantity, item.unit);
         holder.badge.setText(qtyText);
 
-        // Bind expiry status badge
         bindExpiryStatus(holder.expiryBadge, item.expiry);
 
         holder.edit.setOnClickListener(v -> listener.edit(item));
@@ -86,21 +82,21 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.Holder> {
             long ago = Math.abs(daysDiff);
             String label = ago == 1 ? "⚠️ Expired yesterday" : "⚠️ Expired " + ago + " days ago";
             badge.setText(label);
-            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDAD6"))); // Light red
-            badge.setTextColor(Color.parseColor("#BA1A1A")); // Dark red
+            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDAD6")));
+            badge.setTextColor(Color.parseColor("#BA1A1A"));
         } else if (daysDiff == 0) {
             badge.setText("⏳ Expires Today!");
-            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDDB3"))); // Light orange
-            badge.setTextColor(Color.parseColor("#8A4A00")); // Dark orange
+            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDDB3")));
+            badge.setTextColor(Color.parseColor("#8A4A00"));
         } else if (daysDiff <= 3) {
             String label = daysDiff == 1 ? "⏳ Expires tomorrow" : "⏳ Expires in " + daysDiff + " days";
             badge.setText(label);
-            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDDB3"))); // Light orange
-            badge.setTextColor(Color.parseColor("#8A4A00")); // Dark orange
+            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFDDB3")));
+            badge.setTextColor(Color.parseColor("#8A4A00"));
         } else {
             badge.setText("🟢 Fresh · " + daysDiff + " days left");
-            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#D1E8D3"))); // Light green
-            badge.setTextColor(Color.parseColor("#0C1F12")); // Dark green
+            badge.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#D1E8D3")));
+            badge.setTextColor(Color.parseColor("#0C1F12"));
         }
     }
 
